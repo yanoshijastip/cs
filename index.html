@@ -16,7 +16,21 @@
         .widget-header { padding: 20px; background-color: var(--primary-color); color: white; display: flex; align-items: center; }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
-        #close-widget { margin-left: auto; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        #close-widget {
+            position: absolute; /* Membuat tombol mengambang di atas elemen lain */
+            top: 10px;          /* Jarak 10px dari atas */
+            right: 15px;         /* Jarak 15px dari kanan */
+            z-index: 1001;      /* Memastikan tombol berada di lapisan paling atas */
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7); /* Warna putih dengan sedikit transparan */
+            font-size: 24px;                 /* Sedikit lebih besar agar mudah diklik */
+            cursor: pointer;
+            transition: color 0.2s ease;     /* Animasi halus saat hover */
+        }
+        #close-widget:hover {
+            color: #ffffff; /* Warna menjadi putih penuh saat disentuh mouse */
+        }
         .messages-container { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: var(--secondary-color); }
         .message { margin-bottom: 15px; display: flex; flex-direction: column; animation: fadeInUp 0.4s ease forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
