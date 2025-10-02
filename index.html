@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS Jastip</title>
+    <title>Live Chat CS Jastip</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* ... Seluruh CSS dari jawaban sebelumnya tetap sama ... */
         :root { --primary-color: #007bff; --secondary-color: #f0f2f5; --text-color: #0d0d0d; --bubble-sent-bg: var(--primary-color); --bubble-received-bg: #e4e6eb; --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; --shadow: 0 5px 20px rgba(0, 0, 0, 0.15); }
-        body { font-family: var(--font-family); background-color: #e5e5e5; }
+        body { font-family: var(--font-family); background-color: #e5e5e5; margin: 0; overflow: hidden; }
         #chat-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.2s ease-in-out; z-index: 999; }
         #chat-fab:hover { transform: scale(1.1); }
         #chat-widget { position: fixed; bottom: 100px; right: 30px; width: 370px; height: 70vh; max-height: 600px; background-color: white; border-radius: 15px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; opacity: 0; transform: translateY(20px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1000; }
@@ -35,25 +35,51 @@
         .typing-bubble .dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-bubble .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
-        .widget-footer { padding: 15px 20px; border-top: 1px solid #ddd; display: flex; align-items: center; }
+        .widget-footer { padding: 15px 20px; border-top: 1px solid #ddd; }
+        .input-area { display: flex; align-items: center; }
         #message-input { flex-grow: 1; border: none; padding: 10px; background-color: transparent; font-size: 1em; }
         #message-input:focus { outline: none; }
         #send-btn { background: none; border: none; color: var(--primary-color); font-size: 20px; cursor: pointer; }
         .hidden { display: none !important; }
-        #welcome-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1001; }
-        #popup-content { background: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
-        #popup-content input { width: 100%; box-sizing: border-box; }
-        #popup-content button { width: 100%; box-sizing: border-box; }
+        #welcome-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #welcome-popup.open { opacity: 1; pointer-events: auto; }
+        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; }
+        #welcome-popup.open #popup-content { transform: scale(1); opacity: 1; }
+        #popup-content h3 { margin-top: 0; color: var(--primary-color); font-size: 1.8em; margin-bottom: 10px; }
+        #popup-content p { color: var(--text-color); font-size: 1em; margin-bottom: 25px; }
+        #popup-content input { width: calc(100% - 24px); padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        #popup-content input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+        #popup-content button { width: 100%; padding: 12px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+        #popup-content button:hover { background-color: #0056b3; transform: translateY(-1px); }
+        #popup-content button:active { transform: translateY(0); }
+
+        /* BARU: Styling untuk tombol "Selesaikan Chat" */
+        #end-chat-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background-color: transparent;
+            border: 1px solid #dc3545; /* Warna merah */
+            color: #dc3545;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        #end-chat-btn:hover {
+            background-color: #dc3545;
+            color: white;
+        }
     </style>
 </head>
 <body>
     
-    <div id="welcome-popup" class="hidden">
+    <div id="welcome-popup">
         <div id="popup-content">
             <h3>Selamat Datang!</h3>
             <p>Silakan isi data kamu untuk memulai chat.</p>
-            <input type="text" id="guest-name" placeholder="Nama Anda">
-            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp">
+            <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
+            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
             <button onclick="handleStartChat()">Mulai Chat</button>
         </div>
     </div>
@@ -73,8 +99,11 @@
             <div class="message received"><div class="bubble typing-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
         </div>
         <footer class="widget-footer">
-            <input type="text" id="message-input" placeholder="Ketik pesan..." onkeydown="handleEnterKey(event)">
-            <button id="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Ketik pesan..." onkeydown="handleEnterKey(event)">
+                <button id="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            <button id="end-chat-btn" onclick="endChatSession()">Selesaikan Chat</button>
         </footer>
     </div>
     
@@ -104,6 +133,8 @@
     // --- VARIABEL GLOBAL & REFERENSI ELEMEN HTML ---
     let currentUser = null;
     let unsubscribeChat = null;
+    let newMessagesListener = null;
+    let renderedMessageIds = new Set();
     const fab = document.getElementById('chat-fab');
     const widget = document.getElementById('chat-widget');
     const closeBtn = document.getElementById('close-widget');
@@ -122,74 +153,110 @@
     });
     
     // --- KONTROL BUKA/TUTUP WIDGET ---
-    
-    // FIX: Logika untuk menampilkan popup atau chat, dipindahkan ke sini.
     fab.addEventListener('click', async () => {
-        if (!currentUser) return; // Pastikan sesi user sudah siap
-
-        // Cek ke database apakah user ini baru atau lama
+        if (!currentUser) return;
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
-
         if (userDoc.exists) {
-            // Jika data user ADA, berarti pengguna lama.
             widget.classList.add('open');
-            listenToChat(); // Langsung mulai chat
+            listenToChat();
         } else {
-            // Jika data user TIDAK ADA, berarti pengguna baru.
-            welcomePopup.classList.remove('hidden'); // Tampilkan popup
+            welcomePopup.classList.add('open');
         }
     });
 
     closeBtn.addEventListener('click', () => {
         widget.classList.remove('open');
-        if (unsubscribeChat) {
-            unsubscribeChat();
-            unsubscribeChat = null;
-        }
+        stopAllListeners();
     });
 
-    // FIX: Fungsi baru untuk menangani submit dari popup
+    // --- FUNGSI-FUNGSI INTI ---
+    
     async function handleStartChat() {
         const name = document.getElementById('guest-name').value.trim();
         const whatsapp = document.getElementById('guest-wa').value.trim();
-
-        if (!name) {
-            return alert("Nama wajib diisi!");
-        }
-
-        // Simpan data pengguna baru ke Firestore
+        if (!name) return alert("Nama wajib diisi!");
+        
         await db.collection('users').doc(currentUser.uid).set({
             name: name,
             whatsapp: whatsapp,
             uid: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        // Setelah data disimpan, sembunyikan popup dan buka widget chat
-        welcomePopup.classList.add('hidden');
+        
+        welcomePopup.classList.remove('open');
         widget.classList.add('open');
-        listenToChat(); // Mulai chat setelah pendaftaran
+        listenToChat();
     }
-    
-    // --- FUNGSI-FUNGSI INTI APLIKASI CHAT ---
-    // (Fungsi di bawah ini sebagian besar sama, hanya dipastikan alurnya benar)
+
+    // BARU: Fungsi untuk mengakhiri sesi dan menghapus semua data
+    async function endChatSession() {
+        if (!currentUser) return;
+
+        const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Seluruh riwayat chat dan data Anda akan dihapus secara permanen.");
+
+        if (confirmation) {
+            try {
+                const userId = currentUser.uid;
+                console.log(`Menghapus data untuk user: ${userId}`);
+                
+                // Hentikan semua listener agar tidak ada error saat data dihapus
+                stopAllListeners();
+                widget.classList.remove('open'); // Tutup widget
+
+                // 1. Hapus semua pesan di sub-koleksi 'messages'
+                const messagesRef = db.collection('chats').doc(userId).collection('messages');
+                const messagesSnapshot = await messagesRef.get();
+                const batch = db.batch();
+                messagesSnapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                console.log("Riwayat pesan berhasil dihapus.");
+
+                // 2. Hapus dokumen chat utama
+                await db.collection('chats').doc(userId).delete();
+                console.log("Dokumen chat utama berhasil dihapus.");
+
+                // 3. Hapus dokumen user dari koleksi 'users'
+                await db.collection('users').doc(userId).delete();
+                console.log("Dokumen user berhasil dihapus.");
+
+                // 4. Hapus akun anonim dari Firebase Auth
+                // Ini akan memaksa pembuatan sesi baru saat halaman dimuat ulang
+                await auth.currentUser.delete();
+                console.log("Akun anonim berhasil dihapus.");
+                
+                // Tampilkan pesan sukses dan muat ulang halaman
+                alert("Percakapan telah diakhiri. Sesi Anda telah direset.");
+                location.reload();
+
+            } catch (error) {
+                console.error("Gagal mengakhiri sesi chat:", error);
+                // Jika terjadi error (misal: perlu re-autentikasi untuk menghapus), reload saja
+                if (error.code === 'auth/requires-recent-login') {
+                    alert("Sesi Anda telah berakhir. Halaman akan dimuat ulang untuk memulai sesi baru.");
+                } else {
+                    alert("Terjadi kesalahan saat mencoba mengakhiri sesi.");
+                }
+                location.reload();
+            }
+        }
+    }
 
     function listenToChat() {
         if (!currentUser || unsubscribeChat) return;
-
-        messagesContainer.innerHTML = '';
-        let renderedMessageIds = new Set();
         
+        stopAllListeners();
+        messagesContainer.innerHTML = '';
+        renderedMessageIds.clear();
         addMessageToUI({ text: "Halo! Ada yang bisa kami bantu?", senderId: ADMIN_UID });
 
-        // Dapatkan semua pesan yang sudah ada
         db.collection('chats').doc(currentUser.uid).collection('messages').orderBy('timestamp')
             .get().then(snapshot => {
-                snapshot.forEach(doc => addMessageToUI(doc.data(), false, doc.id, renderedMessageIds));
+                snapshot.forEach(doc => addMessageToUI(doc.data(), false, doc.id));
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
 
-        // Listener untuk perubahan real-time (pesan baru, typing, read receipts)
         unsubscribeChat = db.collection('chats').doc(currentUser.uid)
             .onSnapshot(doc => {
                 const chatData = doc.exists ? doc.data() : {};
@@ -202,20 +269,18 @@
                         receipt.classList.add('read');
                     }
                 });
-                listenForNewMessages(renderedMessageIds);
+                listenForNewMessages();
             });
     }
     
-    let newMessagesListener = null;
-    function listenForNewMessages(renderedMessageIds) {
+    function listenForNewMessages() {
         if (newMessagesListener) newMessagesListener();
-        
         newMessagesListener = db.collection('chats').doc(currentUser.uid).collection('messages')
             .where('timestamp', '>', new Date())
             .onSnapshot(snapshot => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added") {
-                        addMessageToUI(change.doc.data(), true, change.doc.id, renderedMessageIds);
+                        addMessageToUI(change.doc.data(), true, change.doc.id);
                     }
                 });
             });
@@ -227,43 +292,43 @@
         messageInput.value = '';
         const messageData = { text: text, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
         await db.collection('chats').doc(currentUser.uid).collection('messages').add(messageData);
-        await db.collection('users').doc(currentUser.uid).set({ lastUpdate: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); // Update user doc for admin sorting
         await db.collection('chats').doc(currentUser.uid).set({ 
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
             adminUnreadCount: firebase.firestore.FieldValue.increment(1) 
         }, { merge: true });
+        await db.collection('users').doc(currentUser.uid).set({ 
+            lastUpdate: firebase.firestore.FieldValue.serverTimestamp() 
+        }, { merge: true });
     }
 
-    function addMessageToUI(message, animate = false, docId, renderedMessageIds) {
+    function addMessageToUI(message, animate = false, docId) {
         if (docId && renderedMessageIds.has(docId)) return;
         if (docId) renderedMessageIds.add(docId);
         
         const isSent = message.senderId === currentUser.uid;
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', isSent ? 'sent' : 'received');
-
         const timestamp = message.timestamp ? message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
         const messageTimeMillis = message.timestamp ? message.timestamp.toMillis() : 0;
-
-        messageDiv.innerHTML = `
-            <div class="bubble">${message.text}</div>
-            <div class="timestamp">
-                ${timestamp}
-                ${isSent ? `<span class="read-receipt" data-timestamp="${messageTimeMillis}"><i class="fa-solid fa-check"></i></span>` : ''}
-            </div>`;
-
+        messageDiv.innerHTML = `<div class="bubble">${message.text}</div><div class="timestamp">${timestamp}${isSent ? `<span class="read-receipt" data-timestamp="${messageTimeMillis}"><i class="fa-solid fa-check"></i></span>` : ''}</div>`;
         if (animate && !isSent && widget.classList.contains('open')) {
             document.getElementById('notification-sound').play().catch(e => {});
         }
-        
         messagesContainer.appendChild(messageDiv);
-        if (animate || messagesContainer.scrollHeight <= messagesContainer.clientHeight + 100) {
+        if (animate || messagesContainer.scrollHeight <= messagesContainer.clientHeight + 150) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
 
     function handleEnterKey(event) {
         if (event.key === 'Enter') sendMessage();
+    }
+
+    function stopAllListeners() {
+        if (unsubscribeChat) unsubscribeChat();
+        if (newMessagesListener) newMessagesListener();
+        unsubscribeChat = null;
+        newMessagesListener = null;
     }
 </script>
 </body>
