@@ -283,17 +283,15 @@
     
     // --- FUNGSI INTI CHAT DENGAN FITUR BARU ---
     function listenToChat() {
-        if (unsubscribeChat) unsubscribeChat();
+        if (unsubscribeChat) {
+            unsubscribeChat();
+        }
 
         unsubscribeChat = db.collection('chats').doc(currentUser.uid)
             .onSnapshot(doc => {
                 if (!doc.exists) return;
                 const chatData = doc.data();
-                
-                // FITUR: Indikator Admin Mengetik
                 typingIndicator.style.display = chatData.adminIsTyping ? 'block' : 'none';
-
-                // FITUR: Tanda Pesan Dibaca
                 const lastRead = chatData.lastReadByAdmin ? chatData.lastReadByAdmin.toMillis() : 0;
                 document.querySelectorAll('.read-receipt').forEach(receipt => {
                     const messageTime = parseInt(receipt.getAttribute('data-timestamp'));
