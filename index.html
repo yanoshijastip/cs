@@ -70,7 +70,7 @@
             color: white;
             display: flex;
             align-items: center;
-            position: relative; /* Penting untuk posisi absolut #close-widget */
+            position: relative; /* Ini PENTING agar close-widget diposisikan relatif terhadap header */
         }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
@@ -144,7 +144,7 @@
             transform: scale(0.9);
             opacity: 0;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-            position: relative;
+            position: relative; /* Penting untuk posisi absolut #close-popup-btn */
         }
         #welcome-popup.open #popup-content {
             transform: scale(1);
@@ -222,10 +222,10 @@
         <div id="popup-content">
             <button id="close-popup-btn" onclick="closePopup()">&times;</button>
             
-            <h3>Halo</h3>
+            <h3>Halo!</h3>
             <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
-            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp (opsional)" autocomplete="tel">
+            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
             <button onclick="handleStartChat()">Mulai Chat</button>
         </div>
     </div>
