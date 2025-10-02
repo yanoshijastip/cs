@@ -70,22 +70,27 @@
             color: white;
             display: flex;
             align-items: center;
+            position: relative; /* Penting untuk posisi absolut #close-widget */
         }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
+
+        /* Gaya untuk tombol close 'X' pada widget chat utama */
         #close-widget {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            z-index: 1;
+            position: absolute; /* Posisikan absolut di dalam .widget-header */
+            top: 50%; /* Tengah vertikal */
+            right: 15px; /* Jarak dari kanan */
+            transform: translateY(-50%); /* Sesuaikan posisi vertikal */
             background: none;
             border: none;
             color: rgba(255, 255, 255, 0.7);
             font-size: 24px;
             cursor: pointer;
             transition: color 0.2s ease;
+            margin-left: auto; /* Memastikan ke kanan jika tidak pakai absolute */
         }
         #close-widget:hover { color: #ffffff; }
+
         .messages-container { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: var(--secondary-color); }
         .message { margin-bottom: 15px; display: flex; flex-direction: column; animation: fadeInUp 0.4s ease forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -110,21 +115,105 @@
         #message-input:focus { outline: none; }
         #send-btn { background: none; border: none; color: var(--primary-color); font-size: 20px; cursor: pointer; }
         .hidden { display: none !important; }
-        #welcome-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        #welcome-popup.open { opacity: 1; pointer-events: auto; }
-        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; position: relative; }
-        #welcome-popup.open #popup-content { transform: scale(1); opacity: 1; }
+        #welcome-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #welcome-popup.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #popup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            position: relative;
+        }
+        #welcome-popup.open #popup-content {
+            transform: scale(1);
+            opacity: 1;
+        }
         #popup-content h3 { margin-top: 0; color: var(--primary-color); font-size: 1.8em; margin-bottom: 10px; }
         #popup-content p { color: var(--text-color); font-size: 1em; margin-bottom: 25px; }
-        #popup-content input { width: calc(100% - 24px); padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        #popup-content input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
         #popup-content input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
-        #popup-content button { width: 100%; padding: 12px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+        #popup-content button {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
         #popup-content button:hover { background-color: #0056b3; transform: translateY(-1px); }
         #popup-content button:active { transform: translateY(0); }
-        #end-chat-btn { width: 100%; margin-top: 10px; padding: 8px; background-color: transparent; border: 1px solid #dc3545; color: #dc3545; border-radius: 8px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+        #end-chat-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background-color: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
         #end-chat-btn:hover { background-color: #dc3545; color: white; }
-        #close-popup-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; color: #aaa; cursor: pointer; transition: color 0.2s ease; }
-        #close-popup-btn:hover { color: #333; }
+
+        /* Gaya baru untuk tombol close 'X' pada popup - di luar kontainer, lingkaran kecil */
+        #close-popup-btn {
+            position: absolute;
+            top: -15px; /* Pindah ke atas konten popup */
+            right: -15px; /* Pindah ke kanan konten popup */
+            background-color: white; /* Latar belakang putih */
+            border: 1px solid #ccc; /* Border abu-abu */
+            border-radius: 50%; /* Bentuk lingkaran */
+            width: 30px; /* Ukuran lingkaran */
+            height: 30px; /* Ukuran lingkaran */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px; /* Ukuran X di tengah */
+            color: #888; /* Warna X */
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sedikit bayangan */
+            transition: all 0.2s ease;
+            z-index: 10; /* Pastikan di atas elemen lain */
+        }
+        #close-popup-btn:hover {
+            background-color: #f0f0f0;
+            color: #333;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -132,10 +221,11 @@
     <div id="welcome-popup">
         <div id="popup-content">
             <button id="close-popup-btn" onclick="closePopup()">&times;</button>
-            <h3>Halo!</h3>
+            
+            <h3>Halo</h3>
             <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
-            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
+            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp (opsional)" autocomplete="tel">
             <button onclick="handleStartChat()">Mulai Chat</button>
         </div>
     </div>
@@ -143,12 +233,12 @@
     <div id="chat-fab"><i class="fa-solid fa-comments"></i></div>
     
     <div id="chat-widget">
-        <button id="close-widget"><i class="fa-solid fa-times"></i></button>
         <header class="widget-header">
             <div class="admin-info">
                 <div class="name">CS Jastip</div>
                 <div class="status" id="admin-status">Online</div>
             </div>
+            <button id="close-widget"><i class="fa-solid fa-times"></i></button>
         </header>
         <main class="messages-container" id="widget-messages"></main>
         <div id="typing-indicator">
@@ -170,7 +260,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-    // --- KONFIGURASI FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyA_2R9DBUUpibY2u6MEenCTDDOZ-w0vlx8",
         authDomain: "aplikasi-chat-d05ce.firebaseapp.com",
@@ -181,24 +270,24 @@
         measurementId: "G-XFNNC4HYM6"
     };
     const ADMIN_UID = "Vjsy4i8HKBaLC1994rmB63IobV02"; 
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // --- VARIABEL & ELEMEN DOM ---
     let currentUser = null;
     let unsubscribeChat = null;
     const fab = document.getElementById('chat-fab');
     const widget = document.getElementById('chat-widget');
     const closeBtn = document.getElementById('close-widget');
     const welcomePopup = document.getElementById('welcome-popup');
+    const messagesContainer = document.getElementById('widget-messages');
+    const messageInput = document.getElementById('message-input');
 
-    // --- AUTENTIKASI ---
     auth.onAuthStateChanged(user => {
         if (user) { currentUser = { uid: user.uid }; } else { auth.signInAnonymously().catch(console.error); }
     });
     
-    // --- KONTROL BUKA/TUTUP WIDGET & POPUP ---
     fab.addEventListener('click', async () => {
         if (!currentUser) return;
         const sessionEnded = localStorage.getItem('chat_session_ended');
@@ -226,7 +315,6 @@
 
     function closePopup() { welcomePopup.classList.remove('open'); }
 
-    // --- FUNGSI-FUNGSI INTI ---
     async function handleStartChat() {
         const name = document.getElementById('guest-name').value.trim();
         const whatsapp = document.getElementById('guest-wa').value.trim();
@@ -254,7 +342,6 @@
 
     function listenToChat() {
         if (!currentUser || unsubscribeChat) return;
-        const messagesContainer = document.getElementById('widget-messages');
         let renderedMessageIds = new Set();
         
         stopAllListeners();
@@ -295,7 +382,6 @@
     }
 
     async function sendMessage() {
-        const messageInput = document.getElementById('message-input');
         const text = messageInput.value.trim();
         if (text === '' || !currentUser) return;
         messageInput.value = '';
@@ -313,7 +399,6 @@
         if (docId) renderedMessageIds.add(docId);
         
         const isSent = message.senderId === currentUser.uid;
-        const messagesContainer = document.getElementById('widget-messages');
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', isSent ? 'sent' : 'received');
         const timestamp = message.timestamp ? message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
