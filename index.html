@@ -43,7 +43,7 @@
         .hidden { display: none !important; }
         #welcome-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #welcome-popup.open { opacity: 1; pointer-events: auto; }
-        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; }
+        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; position: relative; } /* Tambahkan position: relative */
         #welcome-popup.open #popup-content { transform: scale(1); opacity: 1; }
         #popup-content h3 { margin-top: 0; color: var(--primary-color); font-size: 1.8em; margin-bottom: 10px; }
         #popup-content p { color: var(--text-color); font-size: 1em; margin-bottom: 25px; }
@@ -54,12 +54,30 @@
         #popup-content button:active { transform: translateY(0); }
         #end-chat-btn { width: 100%; margin-top: 10px; padding: 8px; background-color: transparent; border: 1px solid #dc3545; color: #dc3545; border-radius: 8px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
         #end-chat-btn:hover { background-color: #dc3545; color: white; }
+        
+        /* BARU: Styling untuk tombol close 'X' pada popup */
+        #close-popup-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        #close-popup-btn:hover {
+            color: #333;
+        }
     </style>
 </head>
 <body>
-
+    
     <div id="welcome-popup">
         <div id="popup-content">
+            <button id="close-popup-btn" onclick="closePopup()">&times;</button>
+            
             <h3>Selamat Datang!</h3>
             <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
@@ -132,19 +150,14 @@
         }
     });
     
-    // --- KONTROL BUKA/TUTUP WIDGET ---
+    // --- KONTROL BUKA/TUTUP WIDGET & POPUP ---
     fab.addEventListener('click', async () => {
         if (!currentUser) return;
-
-        // BARU: Cek penanda di Local Storage terlebih dahulu
         const sessionEnded = localStorage.getItem('chat_session_ended');
         if (sessionEnded === 'true') {
-            // Jika sesi sudah diakhiri, paksa tampilkan popup
             welcomePopup.classList.add('open');
             return;
         }
-
-        // Jika tidak ada penanda, lanjutkan logika seperti biasa
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         if (userDoc.exists) {
             widget.classList.add('open');
@@ -161,6 +174,19 @@
             unsubscribeChat = null;
         }
     });
+    
+    // BARU: Event listener untuk menutup popup saat mengklik area luar (overlay)
+    welcomePopup.addEventListener('click', (event) => {
+        // Cek apakah yang diklik adalah elemen overlay itu sendiri, bukan konten di dalamnya
+        if (event.target === welcomePopup) {
+            closePopup();
+        }
+    });
+
+    // BARU: Fungsi terpusat untuk menutup popup
+    function closePopup() {
+        welcomePopup.classList.remove('open');
+    }
 
     // --- FUNGSI-FUNGSI INTI ---
     
@@ -169,45 +195,39 @@
         const whatsapp = document.getElementById('guest-wa').value.trim();
         if (!name) return alert("Nama wajib diisi!");
         
-        // Simpan data (atau perbarui jika sudah ada)
         await db.collection('users').doc(currentUser.uid).set({
             name: name,
             whatsapp: whatsapp,
             uid: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }); // Gunakan merge untuk jaga-jaga
+        }, { merge: true });
         
-        // BARU: Hapus penanda dari Local Storage setelah user mendaftar ulang
         localStorage.removeItem('chat_session_ended');
-
-        welcomePopup.classList.remove('open');
+        closePopup(); // Gunakan fungsi baru untuk menutup popup
         widget.classList.add('open');
         listenToChat();
     }
 
-    // BARU: Fungsi untuk mereset sesi HANYA di sisi pengguna
     function endChatSession() {
         if (!currentUser) return;
-
         const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Riwayat chat Anda di perangkat ini akan disembunyikan dan Anda perlu mendaftar ulang untuk memulai chat baru.");
-
         if (confirmation) {
-            // 1. Simpan penanda di Local Storage browser
             localStorage.setItem('chat_session_ended', 'true');
-            
-            // 2. Tampilkan pesan sukses dan muat ulang halaman
             alert("Percakapan telah diakhiri. Anda akan memulai sesi baru.");
             location.reload();
         }
     }
 
+    // ... (Fungsi listenToChat, sendMessage, dan lainnya tidak berubah dari versi sebelumnya) ...
+    // Saya sertakan lagi di bawah untuk kelengkapan.
     function listenToChat() {
-        // ... (Fungsi listenToChat dan fungsi lainnya tidak perlu diubah dari versi sebelumnya) ...
         if (!currentUser || unsubscribeChat) return;
         const messagesContainer = document.getElementById('widget-messages');
-        messagesContainer.innerHTML = '';
         let renderedMessageIds = new Set();
         
+        stopAllListeners();
+        messagesContainer.innerHTML = '';
+        renderedMessageIds.clear();
         addMessageToUI({ text: "Halo! Ada yang bisa kami bantu?", senderId: ADMIN_UID }, false, null, renderedMessageIds);
 
         db.collection('chats').doc(currentUser.uid).collection('messages').orderBy('timestamp')
