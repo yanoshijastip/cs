@@ -6,31 +6,86 @@
     <title>Live Chat CS Jastip</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* ... Seluruh CSS dari jawaban sebelumnya tetap sama ... */
-        :root { --primary-color: #007bff; --secondary-color: #f0f2f5; --text-color: #0d0d0d; --bubble-sent-bg: var(--primary-color); --bubble-received-bg: #e4e6eb; --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; --shadow: 0 5px 20px rgba(0, 0, 0, 0.15); }
-        body { font-family: var(--font-family); background-color: #e5e5e5; margin: 0; overflow: hidden; }
-        #chat-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.2s ease-in-out; z-index: 999; }
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f0f2f5;
+            --text-color: #0d0d0d;
+            --bubble-sent-bg: var(--primary-color);
+            --bubble-received-bg: #e4e6eb;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: #e5e5e5;
+            margin: 0;
+            overflow: hidden;
+        }
+        #chat-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease-in-out;
+            z-index: 999;
+        }
         #chat-fab:hover { transform: scale(1.1); }
-        #chat-widget { position: fixed; bottom: 100px; right: 30px; width: 370px; height: 70vh; max-height: 600px; background-color: white; border-radius: 15px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; opacity: 0; transform: translateY(20px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1000; }
-        #chat-widget.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        .widget-header { padding: 20px; background-color: var(--primary-color); color: white; display: flex; align-items: center; }
+        #chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 370px;
+            height: 70vh;
+            max-height: 600px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+        #chat-widget.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .widget-header {
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+        }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
         #close-widget {
-            position: absolute; /* Membuat tombol mengambang di atas elemen lain */
-            top: 10px;          /* Jarak 10px dari atas */
-            right: 15px;         /* Jarak 15px dari kanan */
-            z-index: 1001;      /* Memastikan tombol berada di lapisan paling atas */
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            z-index: 1;
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.7); /* Warna putih dengan sedikit transparan */
-            font-size: 24px;                 /* Sedikit lebih besar agar mudah diklik */
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
             cursor: pointer;
-            transition: color 0.2s ease;     /* Animasi halus saat hover */
+            transition: color 0.2s ease;
         }
-        #close-widget:hover {
-            color: #ffffff; /* Warna menjadi putih penuh saat disentuh mouse */
-        }
+        #close-widget:hover { color: #ffffff; }
         .messages-container { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: var(--secondary-color); }
         .message { margin-bottom: 15px; display: flex; flex-direction: column; animation: fadeInUp 0.4s ease forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -57,7 +112,7 @@
         .hidden { display: none !important; }
         #welcome-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #welcome-popup.open { opacity: 1; pointer-events: auto; }
-        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; position: relative; } /* Tambahkan position: relative */
+        #popup-content { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; position: relative; }
         #welcome-popup.open #popup-content { transform: scale(1); opacity: 1; }
         #popup-content h3 { margin-top: 0; color: var(--primary-color); font-size: 1.8em; margin-bottom: 10px; }
         #popup-content p { color: var(--text-color); font-size: 1em; margin-bottom: 25px; }
@@ -68,22 +123,8 @@
         #popup-content button:active { transform: translateY(0); }
         #end-chat-btn { width: 100%; margin-top: 10px; padding: 8px; background-color: transparent; border: 1px solid #dc3545; color: #dc3545; border-radius: 8px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
         #end-chat-btn:hover { background-color: #dc3545; color: white; }
-        
-        /* BARU: Styling untuk tombol close 'X' pada popup */
-        #close-popup-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #aaa;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        #close-popup-btn:hover {
-            color: #333;
-        }
+        #close-popup-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; color: #aaa; cursor: pointer; transition: color 0.2s ease; }
+        #close-popup-btn:hover { color: #333; }
     </style>
 </head>
 <body>
@@ -91,8 +132,7 @@
     <div id="welcome-popup">
         <div id="popup-content">
             <button id="close-popup-btn" onclick="closePopup()">&times;</button>
-            
-            <h3>Selamat Datang!</h3>
+            <h3>Halo!</h3>
             <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
             <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
@@ -103,12 +143,12 @@
     <div id="chat-fab"><i class="fa-solid fa-comments"></i></div>
     
     <div id="chat-widget">
+        <button id="close-widget"><i class="fa-solid fa-times"></i></button>
         <header class="widget-header">
             <div class="admin-info">
                 <div class="name">CS Jastip</div>
                 <div class="status" id="admin-status">Online</div>
             </div>
-            <button id="close-widget"><i class="fa-solid fa-times"></i></button>
         </header>
         <main class="messages-container" id="widget-messages"></main>
         <div id="typing-indicator">
@@ -141,27 +181,21 @@
         measurementId: "G-XFNNC4HYM6"
     };
     const ADMIN_UID = "Vjsy4i8HKBaLC1994rmB63IobV02"; 
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // --- VARIABEL GLOBAL & REFERENSI ELEMEN HTML ---
+    // --- VARIABEL & ELEMEN DOM ---
     let currentUser = null;
     let unsubscribeChat = null;
     const fab = document.getElementById('chat-fab');
     const widget = document.getElementById('chat-widget');
     const closeBtn = document.getElementById('close-widget');
     const welcomePopup = document.getElementById('welcome-popup');
-    // ... sisa variabel sama ...
 
-    // --- AUTENTIKASI ANONIM ---
+    // --- AUTENTIKASI ---
     auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = { uid: user.uid };
-        } else {
-            auth.signInAnonymously().catch(console.error);
-        }
+        if (user) { currentUser = { uid: user.uid }; } else { auth.signInAnonymously().catch(console.error); }
     });
     
     // --- KONTROL BUKA/TUTUP WIDGET & POPUP ---
@@ -183,48 +217,34 @@
 
     closeBtn.addEventListener('click', () => {
         widget.classList.remove('open');
-        if (unsubscribeChat) {
-            unsubscribeChat();
-            unsubscribeChat = null;
-        }
+        if (unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
     });
     
-    // BARU: Event listener untuk menutup popup saat mengklik area luar (overlay)
     welcomePopup.addEventListener('click', (event) => {
-        // Cek apakah yang diklik adalah elemen overlay itu sendiri, bukan konten di dalamnya
-        if (event.target === welcomePopup) {
-            closePopup();
-        }
+        if (event.target === welcomePopup) { closePopup(); }
     });
 
-    // BARU: Fungsi terpusat untuk menutup popup
-    function closePopup() {
-        welcomePopup.classList.remove('open');
-    }
+    function closePopup() { welcomePopup.classList.remove('open'); }
 
     // --- FUNGSI-FUNGSI INTI ---
-    
     async function handleStartChat() {
         const name = document.getElementById('guest-name').value.trim();
         const whatsapp = document.getElementById('guest-wa').value.trim();
         if (!name) return alert("Nama wajib diisi!");
         
         await db.collection('users').doc(currentUser.uid).set({
-            name: name,
-            whatsapp: whatsapp,
-            uid: currentUser.uid,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            name: name, whatsapp: whatsapp, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
         
         localStorage.removeItem('chat_session_ended');
-        closePopup(); // Gunakan fungsi baru untuk menutup popup
+        closePopup();
         widget.classList.add('open');
         listenToChat();
     }
 
     function endChatSession() {
         if (!currentUser) return;
-        const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Riwayat chat Anda di perangkat ini akan disembunyikan dan Anda perlu mendaftar ulang untuk memulai chat baru.");
+        const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Riwayat chat Anda akan disembunyikan dan Anda perlu mendaftar ulang untuk memulai chat baru.");
         if (confirmation) {
             localStorage.setItem('chat_session_ended', 'true');
             alert("Percakapan telah diakhiri. Anda akan memulai sesi baru.");
@@ -232,8 +252,6 @@
         }
     }
 
-    // ... (Fungsi listenToChat, sendMessage, dan lainnya tidak berubah dari versi sebelumnya) ...
-    // Saya sertakan lagi di bawah untuk kelengkapan.
     function listenToChat() {
         if (!currentUser || unsubscribeChat) return;
         const messagesContainer = document.getElementById('widget-messages');
@@ -310,14 +328,8 @@
         }
     }
 
-    function handleEnterKey(event) {
-        if (event.key === 'Enter') sendMessage();
-    }
-
-    function stopAllListeners() {
-        if (unsubscribeChat) unsubscribeChat();
-        unsubscribeChat = null;
-    }
+    function handleEnterKey(event) { if (event.key === 'Enter') sendMessage(); }
+    function stopAllListeners() { if (unsubscribeChat) unsubscribeChat(); unsubscribeChat = null; }
 </script>
 </body>
 </html>
