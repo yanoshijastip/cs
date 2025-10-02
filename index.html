@@ -22,69 +22,36 @@
             overflow: hidden;
         }
         #chat-fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s ease-in-out;
-            z-index: 999;
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background-color: var(--primary-color); color: white;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 24px; cursor: pointer; box-shadow: var(--shadow);
+            transition: transform 0.2s ease-in-out; z-index: 999;
         }
         #chat-fab:hover { transform: scale(1.1); }
         #chat-widget {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 370px;
-            height: 70vh;
-            max-height: 600px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            position: fixed; bottom: 100px; right: 30px;
+            width: 370px; height: 70vh; max-height: 600px;
+            background-color: white; border-radius: 15px; box-shadow: var(--shadow);
+            display: flex; flex-direction: column; overflow: visible; /* Penting untuk tombol close */
+            opacity: 0; transform: translateY(20px);
+            pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease;
             z-index: 1000;
         }
-        #chat-widget.open {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
+        #chat-widget.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .widget-header {
-            padding: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            position: relative;
+            padding: 20px; background-color: var(--primary-color); color: white;
+            display: flex; align-items: center; position: relative;
+            border-top-left-radius: 15px; border-top-right-radius: 15px;
         }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
         #close-widget {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.2s ease;
+            position: absolute; top: 50%; right: 15px;
+            transform: translateY(-50%); background: none; border: none;
+            color: rgba(255, 255, 255, 0.7); font-size: 24px;
+            cursor: pointer; transition: color 0.2s ease;
         }
         #close-widget:hover { color: #ffffff; }
         .messages-container { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: var(--secondary-color); }
@@ -100,7 +67,6 @@
         .read-receipt { font-size: 0.8em; color: #eee; margin-left: 5px; }
         .read-receipt.read { color: #4fc3f7; }
         #typing-indicator { padding: 0 20px 10px 20px; display: none; }
-        .typing-bubble { background-color: var(--bubble-received-bg); }
         .typing-bubble .dot { display: inline-block; width: 8px; height: 8px; background-color: #999; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite; }
         .typing-bubble .dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-bubble .dot:nth-child(3) { animation-delay: 0.4s; }
@@ -112,102 +78,37 @@
         #send-btn { background: none; border: none; color: var(--primary-color); font-size: 20px; cursor: pointer; }
         .hidden { display: none !important; }
         #welcome-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
+            z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
-        #welcome-popup.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #welcome-popup.open { opacity: 1; pointer-events: auto; }
         #popup-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform: scale(0.9);
-            opacity: 0;
+            background: white; padding: 40px; border-radius: 15px; width: 320px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: scale(0.9); opacity: 0;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
             position: relative;
         }
-        #welcome-popup.open #popup-content {
-            transform: scale(1);
-            opacity: 1;
-        }
+        #welcome-popup.open #popup-content { transform: scale(1); opacity: 1; }
         #popup-content h3 { margin-top: 0; color: var(--primary-color); font-size: 1.8em; margin-bottom: 10px; }
         #popup-content p { color: var(--text-color); font-size: 1em; margin-bottom: 25px; }
-        #popup-content input {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
+        #popup-content input { width: calc(100% - 24px); padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
         #popup-content input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
-        #popup-content button {
-            width: 100%;
-            padding: 12px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
+        #popup-content button { width: 100%; padding: 12px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
         #popup-content button:hover { background-color: #0056b3; transform: translateY(-1px); }
         #popup-content button:active { transform: translateY(0); }
-        #end-chat-btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 8px;
-            background-color: transparent;
-            border: 1px solid #dc3545;
-            color: #dc3545;
-            border-radius: 8px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
+        #end-chat-btn { width: 100%; margin-top: 10px; padding: 8px; background-color: transparent; border: 1px solid #dc3545; color: #dc3545; border-radius: 8px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
         #end-chat-btn:hover { background-color: #dc3545; color: white; }
         #close-popup-btn {
-            position: absolute;
-            top: -15px;
-            right: -15px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            color: #888;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            position: absolute; top: -15px; right: -15px;
+            background-color: white; border: 1px solid #ccc; border-radius: 50%;
+            width: 30px; height: 30px; display: flex; justify-content: center; align-items: center;
+            font-size: 18px; color: #888; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: all 0.2s ease;
             z-index: 10;
         }
-        #close-popup-btn:hover {
-            background-color: #f0f0f0;
-            color: #333;
-            transform: scale(1.1);
-        }
+        #close-popup-btn:hover { background-color: #f0f0f0; color: #333; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -246,7 +147,7 @@
         </footer>
     </div>
     
-    <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" preload="auto"></audio>
+    <audio id="notification-sound" src="https://res.cloudinary.com/dhsbixafr/video/upload/v1759203673/new-notification-09-352705_cmjazj.mp3" preload="auto"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -263,7 +164,6 @@
         measurementId: "G-XFNNC4HYM6"
     };
     const ADMIN_UID = "Vjsy4i8HKBaLC1994rmB63IobV02"; 
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -274,25 +174,33 @@
     const widget = document.getElementById('chat-widget');
     const closeBtn = document.getElementById('close-widget');
     const welcomePopup = document.getElementById('welcome-popup');
-    const messagesContainer = document.getElementById('widget-messages');
-    const messageInput = document.getElementById('message-input');
-
+    
     auth.onAuthStateChanged(user => {
         if (user) { currentUser = { uid: user.uid }; } else { auth.signInAnonymously().catch(console.error); }
     });
     
+    // === FIX: LOGIKA EKSPLISIT UNTUK MENAMPILKAN/MENYEMBUNYIKAN ===
     fab.addEventListener('click', async () => {
         if (!currentUser) return;
         const sessionEnded = localStorage.getItem('chat_session_ended');
+        
+        // Selalu sembunyikan keduanya terlebih dahulu untuk mereset state
+        widget.classList.remove('open');
+        welcomePopup.classList.remove('open');
+
         if (sessionEnded === 'true') {
+            // Jika sesi berakhir, HANYA tampilkan popup
             welcomePopup.classList.add('open');
             return;
         }
+
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         if (userDoc.exists) {
+            // Jika user sudah ada, HANYA tampilkan widget chat
             widget.classList.add('open');
             listenToChat();
         } else {
+            // Jika user baru, HANYA tampilkan popup
             welcomePopup.classList.add('open');
         }
     });
@@ -309,14 +217,13 @@
     function closePopup() { welcomePopup.classList.remove('open'); }
 
     async function handleStartChat() {
+        // ... (fungsi ini tidak berubah)
         const name = document.getElementById('guest-name').value.trim();
         const whatsapp = document.getElementById('guest-wa').value.trim();
         if (!name) return alert("Nama wajib diisi!");
-        
         await db.collection('users').doc(currentUser.uid).set({
             name: name, whatsapp: whatsapp, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        
         localStorage.removeItem('chat_session_ended');
         closePopup();
         widget.classList.add('open');
@@ -324,6 +231,7 @@
     }
 
     function endChatSession() {
+        // ... (fungsi ini tidak berubah)
         if (!currentUser) return;
         const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Riwayat chat Anda akan disembunyikan dan Anda perlu mendaftar ulang untuk memulai chat baru.");
         if (confirmation) {
@@ -332,22 +240,21 @@
             location.reload();
         }
     }
-
+    
+    // Seluruh fungsi di bawah ini tidak ada perubahan.
     function listenToChat() {
         if (!currentUser || unsubscribeChat) return;
         let renderedMessageIds = new Set();
-        
         stopAllListeners();
+        const messagesContainer = document.getElementById('widget-messages');
         messagesContainer.innerHTML = '';
         renderedMessageIds.clear();
         addMessageToUI({ text: "Halo! Ada yang bisa kami bantu?", senderId: ADMIN_UID }, false, null, renderedMessageIds);
-
         db.collection('chats').doc(currentUser.uid).collection('messages').orderBy('timestamp')
             .get().then(snapshot => {
                 snapshot.forEach(doc => addMessageToUI(doc.data(), false, doc.id, renderedMessageIds));
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
-        
         let newMessagesListener = null;
         unsubscribeChat = db.collection('chats').doc(currentUser.uid)
             .onSnapshot(doc => {
@@ -373,8 +280,8 @@
                     });
             });
     }
-
     async function sendMessage() {
+        const messageInput = document.getElementById('message-input');
         const text = messageInput.value.trim();
         if (text === '' || !currentUser) return;
         messageInput.value = '';
@@ -386,12 +293,11 @@
             adminUnreadCount: firebase.firestore.FieldValue.increment(1) 
         }, { merge: true });
     }
-
     function addMessageToUI(message, animate = false, docId, renderedMessageIds) {
         if (docId && renderedMessageIds.has(docId)) return;
         if (docId) renderedMessageIds.add(docId);
-        
         const isSent = message.senderId === currentUser.uid;
+        const messagesContainer = document.getElementById('widget-messages');
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', isSent ? 'sent' : 'received');
         const timestamp = message.timestamp ? message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
@@ -405,7 +311,6 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
-
     function handleEnterKey(event) { if (event.key === 'Enter') sendMessage(); }
     function stopAllListeners() { if (unsubscribeChat) unsubscribeChat(); unsubscribeChat = null; }
 </script>
