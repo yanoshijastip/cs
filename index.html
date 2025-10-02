@@ -52,32 +52,16 @@
         #popup-content button { width: 100%; padding: 12px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
         #popup-content button:hover { background-color: #0056b3; transform: translateY(-1px); }
         #popup-content button:active { transform: translateY(0); }
-
-        /* BARU: Styling untuk tombol "Selesaikan Chat" */
-        #end-chat-btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 8px;
-            background-color: transparent;
-            border: 1px solid #dc3545; /* Warna merah */
-            color: #dc3545;
-            border-radius: 8px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-        #end-chat-btn:hover {
-            background-color: #dc3545;
-            color: white;
-        }
+        #end-chat-btn { width: 100%; margin-top: 10px; padding: 8px; background-color: transparent; border: 1px solid #dc3545; color: #dc3545; border-radius: 8px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+        #end-chat-btn:hover { background-color: #dc3545; color: white; }
     </style>
 </head>
 <body>
-    
+
     <div id="welcome-popup">
         <div id="popup-content">
             <h3>Selamat Datang!</h3>
-            <p>Silakan isi data kamu untuk memulai chat.</p>
+            <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
             <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
             <button onclick="handleStartChat()">Mulai Chat</button>
@@ -133,15 +117,11 @@
     // --- VARIABEL GLOBAL & REFERENSI ELEMEN HTML ---
     let currentUser = null;
     let unsubscribeChat = null;
-    let newMessagesListener = null;
-    let renderedMessageIds = new Set();
     const fab = document.getElementById('chat-fab');
     const widget = document.getElementById('chat-widget');
     const closeBtn = document.getElementById('close-widget');
     const welcomePopup = document.getElementById('welcome-popup');
-    const messagesContainer = document.getElementById('widget-messages');
-    const messageInput = document.getElementById('message-input');
-    const typingIndicator = document.getElementById('typing-indicator');
+    // ... sisa variabel sama ...
 
     // --- AUTENTIKASI ANONIM ---
     auth.onAuthStateChanged(user => {
@@ -155,6 +135,16 @@
     // --- KONTROL BUKA/TUTUP WIDGET ---
     fab.addEventListener('click', async () => {
         if (!currentUser) return;
+
+        // BARU: Cek penanda di Local Storage terlebih dahulu
+        const sessionEnded = localStorage.getItem('chat_session_ended');
+        if (sessionEnded === 'true') {
+            // Jika sesi sudah diakhiri, paksa tampilkan popup
+            welcomePopup.classList.add('open');
+            return;
+        }
+
+        // Jika tidak ada penanda, lanjutkan logika seperti biasa
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         if (userDoc.exists) {
             widget.classList.add('open');
@@ -166,7 +156,10 @@
 
     closeBtn.addEventListener('click', () => {
         widget.classList.remove('open');
-        stopAllListeners();
+        if (unsubscribeChat) {
+            unsubscribeChat();
+            unsubscribeChat = null;
+        }
     });
 
     // --- FUNGSI-FUNGSI INTI ---
@@ -176,91 +169,58 @@
         const whatsapp = document.getElementById('guest-wa').value.trim();
         if (!name) return alert("Nama wajib diisi!");
         
+        // Simpan data (atau perbarui jika sudah ada)
         await db.collection('users').doc(currentUser.uid).set({
             name: name,
             whatsapp: whatsapp,
             uid: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        }, { merge: true }); // Gunakan merge untuk jaga-jaga
         
+        // BARU: Hapus penanda dari Local Storage setelah user mendaftar ulang
+        localStorage.removeItem('chat_session_ended');
+
         welcomePopup.classList.remove('open');
         widget.classList.add('open');
         listenToChat();
     }
 
-    // BARU: Fungsi untuk mengakhiri sesi dan menghapus semua data
-    async function endChatSession() {
+    // BARU: Fungsi untuk mereset sesi HANYA di sisi pengguna
+    function endChatSession() {
         if (!currentUser) return;
 
-        const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Seluruh riwayat chat dan data Anda akan dihapus secara permanen.");
+        const confirmation = confirm("Apakah Anda yakin ingin mengakhiri percakapan ini? Riwayat chat Anda di perangkat ini akan disembunyikan dan Anda perlu mendaftar ulang untuk memulai chat baru.");
 
         if (confirmation) {
-            try {
-                const userId = currentUser.uid;
-                console.log(`Menghapus data untuk user: ${userId}`);
-                
-                // Hentikan semua listener agar tidak ada error saat data dihapus
-                stopAllListeners();
-                widget.classList.remove('open'); // Tutup widget
-
-                // 1. Hapus semua pesan di sub-koleksi 'messages'
-                const messagesRef = db.collection('chats').doc(userId).collection('messages');
-                const messagesSnapshot = await messagesRef.get();
-                const batch = db.batch();
-                messagesSnapshot.docs.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                await batch.commit();
-                console.log("Riwayat pesan berhasil dihapus.");
-
-                // 2. Hapus dokumen chat utama
-                await db.collection('chats').doc(userId).delete();
-                console.log("Dokumen chat utama berhasil dihapus.");
-
-                // 3. Hapus dokumen user dari koleksi 'users'
-                await db.collection('users').doc(userId).delete();
-                console.log("Dokumen user berhasil dihapus.");
-
-                // 4. Hapus akun anonim dari Firebase Auth
-                // Ini akan memaksa pembuatan sesi baru saat halaman dimuat ulang
-                await auth.currentUser.delete();
-                console.log("Akun anonim berhasil dihapus.");
-                
-                // Tampilkan pesan sukses dan muat ulang halaman
-                alert("Percakapan telah diakhiri. Sesi Anda telah direset.");
-                location.reload();
-
-            } catch (error) {
-                console.error("Gagal mengakhiri sesi chat:", error);
-                // Jika terjadi error (misal: perlu re-autentikasi untuk menghapus), reload saja
-                if (error.code === 'auth/requires-recent-login') {
-                    alert("Sesi Anda telah berakhir. Halaman akan dimuat ulang untuk memulai sesi baru.");
-                } else {
-                    alert("Terjadi kesalahan saat mencoba mengakhiri sesi.");
-                }
-                location.reload();
-            }
+            // 1. Simpan penanda di Local Storage browser
+            localStorage.setItem('chat_session_ended', 'true');
+            
+            // 2. Tampilkan pesan sukses dan muat ulang halaman
+            alert("Percakapan telah diakhiri. Anda akan memulai sesi baru.");
+            location.reload();
         }
     }
 
     function listenToChat() {
+        // ... (Fungsi listenToChat dan fungsi lainnya tidak perlu diubah dari versi sebelumnya) ...
         if (!currentUser || unsubscribeChat) return;
-        
-        stopAllListeners();
+        const messagesContainer = document.getElementById('widget-messages');
         messagesContainer.innerHTML = '';
-        renderedMessageIds.clear();
-        addMessageToUI({ text: "Halo! Ada yang bisa kami bantu?", senderId: ADMIN_UID });
+        let renderedMessageIds = new Set();
+        
+        addMessageToUI({ text: "Halo! Ada yang bisa kami bantu?", senderId: ADMIN_UID }, false, null, renderedMessageIds);
 
         db.collection('chats').doc(currentUser.uid).collection('messages').orderBy('timestamp')
             .get().then(snapshot => {
-                snapshot.forEach(doc => addMessageToUI(doc.data(), false, doc.id));
+                snapshot.forEach(doc => addMessageToUI(doc.data(), false, doc.id, renderedMessageIds));
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
-
+        
+        let newMessagesListener = null;
         unsubscribeChat = db.collection('chats').doc(currentUser.uid)
             .onSnapshot(doc => {
                 const chatData = doc.exists ? doc.data() : {};
-                typingIndicator.style.display = chatData.adminIsTyping ? 'block' : 'none';
+                document.getElementById('typing-indicator').style.display = chatData.adminIsTyping ? 'block' : 'none';
                 const lastRead = chatData.lastReadByAdmin ? chatData.lastReadByAdmin.toMillis() : 0;
                 document.querySelectorAll('.read-receipt').forEach(receipt => {
                     const messageTime = parseInt(receipt.getAttribute('data-timestamp'));
@@ -269,49 +229,45 @@
                         receipt.classList.add('read');
                     }
                 });
-                listenForNewMessages();
-            });
-    }
-    
-    function listenForNewMessages() {
-        if (newMessagesListener) newMessagesListener();
-        newMessagesListener = db.collection('chats').doc(currentUser.uid).collection('messages')
-            .where('timestamp', '>', new Date())
-            .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === "added") {
-                        addMessageToUI(change.doc.data(), true, change.doc.id);
-                    }
-                });
+                if (newMessagesListener) newMessagesListener();
+                newMessagesListener = db.collection('chats').doc(currentUser.uid).collection('messages')
+                    .where('timestamp', '>', new Date())
+                    .onSnapshot(snapshot => {
+                        snapshot.docChanges().forEach(change => {
+                            if (change.type === "added") {
+                                addMessageToUI(change.doc.data(), true, change.doc.id, renderedMessageIds);
+                            }
+                        });
+                    });
             });
     }
 
     async function sendMessage() {
+        const messageInput = document.getElementById('message-input');
         const text = messageInput.value.trim();
         if (text === '' || !currentUser) return;
         messageInput.value = '';
         const messageData = { text: text, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
         await db.collection('chats').doc(currentUser.uid).collection('messages').add(messageData);
+        await db.collection('users').doc(currentUser.uid).set({ lastUpdate: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
         await db.collection('chats').doc(currentUser.uid).set({ 
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
             adminUnreadCount: firebase.firestore.FieldValue.increment(1) 
         }, { merge: true });
-        await db.collection('users').doc(currentUser.uid).set({ 
-            lastUpdate: firebase.firestore.FieldValue.serverTimestamp() 
-        }, { merge: true });
     }
 
-    function addMessageToUI(message, animate = false, docId) {
+    function addMessageToUI(message, animate = false, docId, renderedMessageIds) {
         if (docId && renderedMessageIds.has(docId)) return;
         if (docId) renderedMessageIds.add(docId);
         
         const isSent = message.senderId === currentUser.uid;
+        const messagesContainer = document.getElementById('widget-messages');
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', isSent ? 'sent' : 'received');
         const timestamp = message.timestamp ? message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
         const messageTimeMillis = message.timestamp ? message.timestamp.toMillis() : 0;
         messageDiv.innerHTML = `<div class="bubble">${message.text}</div><div class="timestamp">${timestamp}${isSent ? `<span class="read-receipt" data-timestamp="${messageTimeMillis}"><i class="fa-solid fa-check"></i></span>` : ''}</div>`;
-        if (animate && !isSent && widget.classList.contains('open')) {
+        if (animate && !isSent && document.getElementById('chat-widget').classList.contains('open')) {
             document.getElementById('notification-sound').play().catch(e => {});
         }
         messagesContainer.appendChild(messageDiv);
@@ -326,9 +282,7 @@
 
     function stopAllListeners() {
         if (unsubscribeChat) unsubscribeChat();
-        if (newMessagesListener) newMessagesListener();
         unsubscribeChat = null;
-        newMessagesListener = null;
     }
 </script>
 </body>
