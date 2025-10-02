@@ -70,27 +70,23 @@
             color: white;
             display: flex;
             align-items: center;
-            position: relative; /* Ini PENTING agar close-widget diposisikan relatif terhadap header */
+            position: relative;
         }
         .admin-info .name { font-weight: bold; }
         .admin-info .status { font-size: 0.8em; opacity: 0.9; }
-
-        /* Gaya untuk tombol close 'X' pada widget chat utama */
         #close-widget {
-            position: absolute; /* Posisikan absolut di dalam .widget-header */
-            top: 50%; /* Tengah vertikal */
-            right: 15px; /* Jarak dari kanan */
-            transform: translateY(-50%); /* Sesuaikan posisi vertikal */
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
             background: none;
             border: none;
             color: rgba(255, 255, 255, 0.7);
             font-size: 24px;
             cursor: pointer;
             transition: color 0.2s ease;
-            margin-left: auto; /* Memastikan ke kanan jika tidak pakai absolute */
         }
         #close-widget:hover { color: #ffffff; }
-
         .messages-container { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: var(--secondary-color); }
         .message { margin-bottom: 15px; display: flex; flex-direction: column; animation: fadeInUp 0.4s ease forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -144,7 +140,7 @@
             transform: scale(0.9);
             opacity: 0;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-            position: relative; /* Penting untuk posisi absolut #close-popup-btn */
+            position: relative;
         }
         #welcome-popup.open #popup-content {
             transform: scale(1);
@@ -188,26 +184,24 @@
             transition: background-color 0.2s ease, color 0.2s ease;
         }
         #end-chat-btn:hover { background-color: #dc3545; color: white; }
-
-        /* Gaya baru untuk tombol close 'X' pada popup - di luar kontainer, lingkaran kecil */
         #close-popup-btn {
             position: absolute;
-            top: -15px; /* Pindah ke atas konten popup */
-            right: -15px; /* Pindah ke kanan konten popup */
-            background-color: white; /* Latar belakang putih */
-            border: 1px solid #ccc; /* Border abu-abu */
-            border-radius: 50%; /* Bentuk lingkaran */
-            width: 30px; /* Ukuran lingkaran */
-            height: 30px; /* Ukuran lingkaran */
+            top: -15px;
+            right: -15px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px; /* Ukuran X di tengah */
-            color: #888; /* Warna X */
+            font-size: 18px;
+            color: #888;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sedikit bayangan */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transition: all 0.2s ease;
-            z-index: 10; /* Pastikan di atas elemen lain */
+            z-index: 10;
         }
         #close-popup-btn:hover {
             background-color: #f0f0f0;
@@ -221,11 +215,10 @@
     <div id="welcome-popup">
         <div id="popup-content">
             <button id="close-popup-btn" onclick="closePopup()">&times;</button>
-            
             <h3>Halo!</h3>
             <p>Silakan isi data Kamu untuk memulai chat.</p>
             <input type="text" id="guest-name" placeholder="Nama Anda" autocomplete="name">
-            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp" autocomplete="tel">
+            <input type="tel" id="guest-wa" placeholder="Nomor WhatsApp (opsional)" autocomplete="tel">
             <button onclick="handleStartChat()">Mulai Chat</button>
         </div>
     </div>
@@ -253,7 +246,7 @@
         </footer>
     </div>
     
-    <audio id="notification-sound" src="https://res.cloudinary.com/dhsbixafr/video/upload/v1759203673/new-notification-09-352705_cmjazj.mp3" preload="auto"></audio>
+    <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" preload="auto"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
